@@ -2,24 +2,22 @@ package com.kevinresol.pathfinding.algorithm.hpastar;
 import com.kevinresol.pathfinding.algorithm.astar.AStar;
 import com.kevinresol.pathfinding.ds.ICluster;
 import com.kevinresol.pathfinding.ds.IClusterManager;
-import com.kevinresol.pathfinding.ds.IGrid;
 import com.kevinresol.pathfinding.ds.INode;
 
 /**
  * ...
  * @author Kevin
  */
-class HPAStar<TNode:INode> implements IPathfinder<TNode> 
+class HPAStar<TCluster:ICluster<TNode>, TNode:INode> implements IPathfinder<TNode> 
 {
 	private var nodes:Array<TNode>;
 	private var edges:Array<Edge<TNode>>;
-	private var clusters:Map<Int, Array<ICluster<TNode>>>;
+	private var clusters:Map<Int, Array<TCluster>>;
 	private var entrances:Array<Entrance<TNode>>;
-	private var clusterManager:IClusterManager<TNode>;
-	private var grid:IGrid<TNode>;
+	private var clusterManager:IClusterManager<TCluster, TNode>;
 	private var aStar:AStar<TNode>;
 
-	public function new(?clusterManager:IClusterManager<TNode>, ?grid:IGrid<TNode>) 
+	public function new(?clusterManager:IClusterManager<TCluster, TNode>) 
 	{
 		this.clusterManager = clusterManager;
 		aStar = new AStar();
@@ -45,7 +43,7 @@ class HPAStar<TNode:INode> implements IPathfinder<TNode>
 		edges = [];
 		clusters = new Map();
 		
-		clusters[1] = clusterManager.buildFromGrid(grid, 1);
+		clusters[1] = clusterManager.buildClusters(1);
 		for (i in 0...clusters[1].length)
 		{
 			for (j in i + 1...clusters[1].length)
@@ -64,11 +62,23 @@ class HPAStar<TNode:INode> implements IPathfinder<TNode>
 	{
 		for (e in entrances)
 		{
-			var n1 = e.nodes.a;
-			var n2 = e.nodes.b;
-			if (nodes.indexOf(n1) == -1) nodes.push(n1);
-			if (nodes.indexOf(n2) == -1) nodes.push(n2);
-			edges.push(new Edge(n1, n2, 1, 1, EInter));
+			var nodePositions;
+			if (e.nodes.a.length <= 3)
+			{
+				nodePositions = [Std.int((e.nodes.a.length - 1) / 2)];
+			}
+			else
+			{
+				nodePositions = [0, e.nodes.a.length - 1];
+			}
+			for (i in nodePositions)
+			{
+				var n1 = e.nodes.a[i];
+				var n2 = e.nodes.b[i];
+				if (nodes.indexOf(n1) == -1) nodes.push(n1);
+				if (nodes.indexOf(n2) == -1) nodes.push(n2);
+				edges.push(new Edge(n1, n2, 1, 1, EInter));
+			}
 		}
 		
 		for (c in clusters[1])
@@ -92,7 +102,7 @@ class HPAStar<TNode:INode> implements IPathfinder<TNode>
 	
 	private function addLevelToGraph(level:Int):Void
 	{
-		clusters[level] = clusterManager.buildFromGrid(grid, level);
+		clusters[level] = clusterManager.buildClusters(level);
 		for (i in 0...clusters[level].length)
 		{
 			for (j in i + 1...clusters[level].length)
@@ -103,10 +113,13 @@ class HPAStar<TNode:INode> implements IPathfinder<TNode>
 				{
 					for (e in clusterManager.getEntrances(c1, c2))
 					{
-						var n1 = e.nodes.a;
-						var n2 = e.nodes.b;
-						n1.level = n2.level = level;
-						getEdge(n1, n2).level = level;
+						for (i in 0...e.nodes.a.length)
+						{
+							var n1 = e.nodes.a[i];
+							var n2 = e.nodes.b[i];
+							n1.level = n2.level = level;
+							getEdge(n1, n2).level = level;
+						}
 					}
 				}
 			}
@@ -133,6 +146,13 @@ class HPAStar<TNode:INode> implements IPathfinder<TNode>
 	
 	private function getEdge(node1:TNode, node2:TNode):Edge<TNode>
 	{
+		for (e in edges)
+		{
+			if (e.nodes.a == node1 && e.nodes.b == node2)
+				return e;
+			if (e.nodes.a == node2 && e.nodes.b == node1)
+				return e;
+		}
 		return null;
 	}
 	

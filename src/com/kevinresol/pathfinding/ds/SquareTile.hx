@@ -4,27 +4,19 @@ package com.kevinresol.pathfinding.ds;
  * ...
  * @author Kevin
  */
-class SquareTile implements INode<SquareTile>
+class SquareTile implements INode
 {
 	public var x:Int;
+	public var y:Int;
 	
+	public var level:Int;
 	public var walkable:Bool;
-	public var neighbours(get, never):Array<SquareTile>;
-	public var parent(default, null):SquareGrid;
 
-	public function new(x:Int, y:Int,) 
+	public function new(x:Int, y:Int, walkable:Bool) 
 	{
-		
-	}
-	
-	private function get_neighbours():Array<SquareTile> 
-	{
-		return _neighbours;
-	}	
-	
-	public function distanceBetween(tile:SquareTile):Int 
-	{
-		
+		this.x = x;
+		this.y = y;
+		this.walkable = walkable;
 	}
 	
 }

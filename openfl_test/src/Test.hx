@@ -2,7 +2,10 @@ package ;
 
 import com.kevinresol.pathfinding.algorithm.astar.AStar;
 import com.kevinresol.pathfinding.algorithm.hpastar.HPAStar;
+import com.kevinresol.pathfinding.ds.SquareClusterManager;
+import com.kevinresol.pathfinding.ds.SquareGrid;
 import flash.display.Sprite;
+import flash.events.Event;
 
 /**
  * ...
@@ -10,51 +13,71 @@ import flash.display.Sprite;
  */
 class Test extends Sprite
 {
-	
-
-	public function new() 
+	public function new()
 	{
 		super();
+		addEventListener(Event.ADDED_TO_STAGE, init);
+	}
+
+	public function init(_) 
+	{
+		removeEventListener(Event.ADDED_TO_STAGE, init);
 		
-		var m = new TileManager();
-		m.init(25, 15);
+		var map = [];
+		var mapWidth = Std.int(stage.stageWidth / Tile.WIDTH);
+		var mapHeight = Std.int(stage.stageHeight / Tile.HEIGHT);
 		
-		for (t in m.tiles)
-			addChild(t);
-			
+		for (y in 0...mapHeight)
+		{
+			map[y] = [];
+			for (x in 0...mapWidth)
+			{
+				map[y][x] = Math.random() > 0.2 ? 1 : 0;
+			}
+		}
 		
-		var p = new AStar(m);
-		var pp = new HPAStar();
+		var grid = new SquareGrid(map);
+		var visualTiles = [];
+		for (t in grid.tiles)
+		{
+			var tile = new Tile(t.x, t.y, t.walkable);
+			visualTiles.push(tile);
+			addChild(tile);
+		}
+		
+		var p = new AStar(grid);
 		
 		var origin;
 		var destination;
 		
 		do 
 		{
-			origin = m.tiles[Std.int(Math.random() * m.tiles.length)];
+			origin = grid.tiles[Std.int(Math.random() * grid.tiles.length)];
 		}
 		while (!origin.walkable);
 			
 			
 		do
 		{
-			destination = m.tiles[Std.int(Math.random() * m.tiles.length)];
+			destination = grid.tiles[Std.int(Math.random() * grid.tiles.length)];
 		}
 		while  (!destination.walkable);
 		
+		for (vt in visualTiles)
+		{
+			if (vt.gridX == origin.x && vt.gridY == origin.y) vt.setAsOrigin();
+			if (vt.gridX == destination.x && vt.gridY == destination.y) vt.setAsDestination();
+		}
 		
-		origin.setAsOrigin();
-		destination.setAsDestination();
-		
-		trace(origin, destination);
 		var path = p.findPath(origin, destination);
 		
-		if(path != null)
-		for (tile in path)
-		{
-			if(tile != origin && tile != destination)
-				tile.fillColor(0x0000ff, 1);
-		}
+		if (path != null)
+			for (tile in path)
+				if (tile != origin && tile != destination)
+					for (vt in visualTiles)
+						if (vt.gridX == tile.x && vt.gridY == tile.y) vt.fillColor(0x0000ff, 1);
 	}
+	
+	
 	
 }
