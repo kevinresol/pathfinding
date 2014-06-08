@@ -13,6 +13,8 @@ import flash.events.Event;
  */
 class Test extends Sprite
 {
+	private var visualTiles:Array<Tile>;
+	
 	public function new()
 	{
 		super();
@@ -37,7 +39,7 @@ class Test extends Sprite
 		}
 		
 		var grid = new SquareGrid(map);
-		var visualTiles = [];
+		visualTiles = [];
 		for (t in grid.tiles)
 		{
 			var tile = new Tile(t.x, t.y, t.walkable);
@@ -45,7 +47,16 @@ class Test extends Sprite
 			addChild(tile);
 		}
 		
-		var p = new AStar(grid);
+		var p = new HPAStar(1, new SquareClusterManager(grid, 10, 10));
+		for (c in p.clusters[1])
+		{
+			
+			for (n in c.entranceNodes)
+			{
+				
+				getVisualTile(n.x, n.y).fillColor(0xff0000, 0.5);
+			}
+		}
 		
 		var origin;
 		var destination;
@@ -63,21 +74,23 @@ class Test extends Sprite
 		}
 		while  (!destination.walkable);
 		
-		for (vt in visualTiles)
-		{
-			if (vt.gridX == origin.x && vt.gridY == origin.y) vt.setAsOrigin();
-			if (vt.gridX == destination.x && vt.gridY == destination.y) vt.setAsDestination();
-		}
+		getVisualTile(origin.x, origin.y).setAsOrigin();
+		getVisualTile(destination.x, destination.y).setAsDestination();
+		
 		
 		var path = p.findPath(origin, destination);
 		
 		if (path != null)
 			for (tile in path)
 				if (tile != origin && tile != destination)
-					for (vt in visualTiles)
-						if (vt.gridX == tile.x && vt.gridY == tile.y) vt.fillColor(0x0000ff, 1);
+					getVisualTile(tile.x, tile.y).fillColor(0x0000ff, 1);
 	}
 	
 	
-	
+	private function getVisualTile(x:Int, y:Int):Tile
+	{
+		for (t in visualTiles)
+			if (t.gridX == x && t.gridY == y) return t;
+		return null;
+	}
 }

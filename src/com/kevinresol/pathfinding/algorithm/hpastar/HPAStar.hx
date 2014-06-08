@@ -10,17 +10,21 @@ import com.kevinresol.pathfinding.ds.INode;
  */
 class HPAStar<TCluster:ICluster<TNode>, TNode:INode> implements IPathfinder<TNode> 
 {
+	public var level:Int;
 	private var nodes:Array<TNode>;
 	private var edges:Array<Edge<TNode>>;
-	private var clusters:Map<Int, Array<TCluster>>;
+	public var clusters(default, null):Map<Int, Array<TCluster>>;
 	private var entrances:Array<Entrance<TNode>>;
 	private var clusterManager:IClusterManager<TCluster, TNode>;
 	private var aStar:AStar<TNode>;
 
-	public function new(?clusterManager:IClusterManager<TCluster, TNode>) 
+	public function new(maxLevel:Int, clusterManager:IClusterManager<TCluster, TNode>) 
 	{
 		this.clusterManager = clusterManager;
+		level = maxLevel;
 		aStar = new AStar();
+		
+		preprocess(level);
 	}
 	
 	public function findPath(origin:TNode, destination:TNode):Array<TNode>
@@ -52,7 +56,8 @@ class HPAStar<TCluster:ICluster<TNode>, TNode:INode> implements IPathfinder<TNod
 				var c2 = clusters[1][j];
 				if (clusterManager.isAdjacent(c1, c2))
 				{
-					clusterManager.buildEntrances(c1, c2);
+					for(e in clusterManager.buildEntrances(c1, c2))
+						entrances.push(e);
 				}
 			}
 		}
@@ -75,20 +80,24 @@ class HPAStar<TCluster:ICluster<TNode>, TNode:INode> implements IPathfinder<TNod
 			{
 				var n1 = e.nodes.a[i];
 				var n2 = e.nodes.b[i];
-				if (nodes.indexOf(n1) == -1) nodes.push(n1);
-				if (nodes.indexOf(n2) == -1) nodes.push(n2);
+				n1.level = n2.level = 1;
+				for (c in clusters[1])
+				{
+					if (c.contains(n1) && c.entranceNodes.indexOf(n1) == -1) c.entranceNodes.push(n1);
+					if (c.contains(n2) && c.entranceNodes.indexOf(n2) == -1) c.entranceNodes.push(n2);
+				}
 				edges.push(new Edge(n1, n2, 1, 1, EInter));
 			}
 		}
 		
 		for (c in clusters[1])
 		{
-			for (i in 0...c.nodes.length)
+			for (i in 0...c.entranceNodes.length)
 			{
-				for (j in i + 1...c.nodes.length)
+				for (j in i + 1...c.entranceNodes.length)
 				{
-					var n1 = c.nodes[i];
-					var n2 = c.nodes[j];
+					var n1 = c.entranceNodes[i];
+					var n2 = c.entranceNodes[j];
 					aStar.nodeManager = c;
 					var path = aStar.findPath(n1, n2);
 					if (path != null)
@@ -127,12 +136,12 @@ class HPAStar<TCluster:ICluster<TNode>, TNode:INode> implements IPathfinder<TNod
 		
 		for (c in clusters[level])
 		{
-			for (i in 0...c.nodes.length)
+			for (i in 0...c.entranceNodes.length)
 			{
-				for (j in i + 1...c.nodes.length)
+				for (j in i + 1...c.entranceNodes.length)
 				{
-					var n1 = c.nodes[i];
-					var n2 = c.nodes[j];
+					var n1 = c.entranceNodes[i];
+					var n2 = c.entranceNodes[j];
 					aStar.nodeManager = c;
 					var path = aStar.findPath(n1, n2);
 					if (path != null)

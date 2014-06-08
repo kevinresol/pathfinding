@@ -8,8 +8,8 @@ import flash.display.Sprite;
  */
 class Tile extends Sprite implements INode
 {
-	public static inline var WIDTH:Int = 10;
-	public static inline var HEIGHT:Int = 10;
+	public static inline var WIDTH:Int = 20;
+	public static inline var HEIGHT:Int = 20;
 	
 	public var gridX:Int;
 	public var gridY:Int;

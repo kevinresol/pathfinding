@@ -6,5 +6,6 @@ package com.kevinresol.pathfinding.ds;
 
 interface ICluster<TNode:INode> extends INodeManager<TNode>
 {
-	var nodes:Array<TNode>;
+	var entranceNodes:Array<TNode>;
+	function contains(node:TNode):Bool;
 }

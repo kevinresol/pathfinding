@@ -32,14 +32,12 @@ class SquareClusterManager implements IClusterManager<SquareCluster, SquareTile>
 		{
 			for (y in 0...height)
 			{
-				var nodes = grid.getTiles(
-					x * clusterWidth, 
-					y * clusterHeight, 
-					x == width - 1 ? widthRemainder : clusterWidth, 
-					y == height - 1 ? heightRemainder : clusterHeight
-				);			
-				
-				var cluster = new SquareCluster(x, y, clusterWidth, clusterHeight, nodes);
+				var offsetX = x * clusterWidth;
+				var offsetY = y * clusterHeight;
+				var cw = x == width - 1 ? widthRemainder : clusterWidth;
+				var ch = y == height - 1 ? heightRemainder : clusterHeight;
+				var nodes = grid.getTiles(offsetX, offsetY, cw, ch);
+				var cluster = new SquareCluster(x, y, offsetX, offsetY, cw, ch, nodes);
 				result.push(cluster);
 			}
 		}
@@ -59,7 +57,7 @@ class SquareClusterManager implements IClusterManager<SquareCluster, SquareTile>
 	public function buildEntrances(cluster1:SquareCluster, cluster2:SquareCluster):Array<Entrance<SquareTile>> 
 	{
 		var border = getBorder(cluster1, cluster2);
-		
+		trace(cluster1, cluster2, border.a, border.b);
 		entrances = [];
 		var entrance = null;
 		for (i in 0...border.a.length)
