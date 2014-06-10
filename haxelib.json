@@ -1,0 +1,15 @@
+{
+  "name": "pathfinding",  
+  "url" : "http://www.kevinresol.com",  
+  "license": "MIT",  
+  "tags": ["game", "pathfinding", "cross"],
+  "description": "Haxe implementation of A* and HPA*",
+  "version": "0.0.1",
+  "releasenote": "Work in Progress",
+  "contributors": ["KevinResoL"],
+  "classpath": "src",
+  "dependencies": {
+    "tink_core": ""
+  }
+  
+}
