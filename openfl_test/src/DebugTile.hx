@@ -6,35 +6,30 @@ import flash.display.Sprite;
  * ...
  * @author Kevin
  */
-class Tile extends Sprite implements INode
+class DebugTile extends Sprite
 {
 	public static inline var WIDTH:Int = 20;
 	public static inline var HEIGHT:Int = 20;
 	
-	public var gridX:Int;
-	public var gridY:Int;
-		
-	public var level:Int;
-	public var walkable:Bool;
+	private var drawWidth:Float;
+	private var drawHeight:Float;
 	
-	
-	public function new(gridX:Int, gridY:Int, walkable:Bool) 
+	public function new(x:Float, y:Float, width:Float, height:Float, color:UInt) 
 	{
 		super();
 		
-		this.gridX = gridX;
-		this.gridY = gridY;
-		this.walkable = walkable;
+		this.x = x;
+		this.y = y;
 		
-		x = gridX * WIDTH;
-		y = gridY * HEIGHT;
+		drawWidth = width;
+		drawHeight = height;
 		
-		fillColor(0xffffff, walkable ? 0 : 1);
+		fillColor(color, 1);
 	}
 	
 	override public function toString():String
 	{
-		return '[Tile: $gridX, $gridY, $walkable]';
+		return '[Tile: ${x/HEIGHT}, ${y/HEIGHT}]';
 	}
 	
 	public function fillColor(color:UInt, alpha:Float):Void
@@ -42,9 +37,16 @@ class Tile extends Sprite implements INode
 		graphics.beginFill(color, alpha);
 			
 		graphics.lineStyle(1, 0xffffff, 1);
-		graphics.drawRect(0, 0, WIDTH, HEIGHT);
+		graphics.drawRect(0, 0, drawWidth, drawHeight);
 		
 		graphics.endFill();
+	}
+	
+	public function drawBorder(color:UInt)
+	{
+		graphics.clear();
+		graphics.lineStyle(1, color, 1);
+		graphics.drawRect(0, 0, drawWidth, drawHeight);
 	}
 	
 	public function setAsOrigin():Void

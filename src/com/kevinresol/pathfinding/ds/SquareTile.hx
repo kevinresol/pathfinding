@@ -19,4 +19,8 @@ class SquareTile implements INode
 		this.walkable = walkable;
 	}
 	
+	public function toString():String
+	{
+		return '[SquareTile: x=$x, y=$y, level=$level, walkable=$walkable]';
+	}
 }

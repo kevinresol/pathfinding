@@ -13,4 +13,5 @@ interface IClusterManager<TCluster:ICluster<TNode>, TNode:INode>
 	function isAdjacent(cluster1:TCluster, cluster2:TCluster):Bool;
 	function buildEntrances(cluster1:TCluster, cluster2:TCluster):Array<Entrance<TNode>>;
 	function getEntrances(cluster1:TCluster, cluster2:TCluster):Array<Entrance<TNode>>;
+	
 }

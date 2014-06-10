@@ -37,7 +37,7 @@ class SquareClusterManager implements IClusterManager<SquareCluster, SquareTile>
 				var cw = x == width - 1 ? widthRemainder : clusterWidth;
 				var ch = y == height - 1 ? heightRemainder : clusterHeight;
 				var nodes = grid.getTiles(offsetX, offsetY, cw, ch);
-				var cluster = new SquareCluster(x, y, offsetX, offsetY, cw, ch, nodes);
+				var cluster = new SquareCluster(x, y, offsetX, offsetY, cw, ch, nodes, level);
 				result.push(cluster);
 			}
 		}
@@ -57,7 +57,7 @@ class SquareClusterManager implements IClusterManager<SquareCluster, SquareTile>
 	public function buildEntrances(cluster1:SquareCluster, cluster2:SquareCluster):Array<Entrance<SquareTile>> 
 	{
 		var border = getBorder(cluster1, cluster2);
-		trace(cluster1, cluster2, border.a, border.b);
+		
 		entrances = [];
 		var entrance = null;
 		for (i in 0...border.a.length)
@@ -81,6 +81,14 @@ class SquareClusterManager implements IClusterManager<SquareCluster, SquareTile>
 				}
 			}
 		}
+		
+		// push last entrance
+		if (entrance != null)
+		{
+			entrances.push(entrance);
+			entrance = null;
+		}
+		
 		return entrances;
 	}
 	

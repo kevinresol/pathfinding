@@ -16,10 +16,11 @@ class SquareCluster implements ICluster<SquareTile>
 	public var width:Int;
 	public var height:Int;
 	
+	public var level:Int;
 	public var entranceNodes:Array<SquareTile>;
 	public var tiles:Array<SquareTile>;
 
-	public function new(x:Int, y:Int, offsetX:Int, offsetY:Int, width:Int, height:Int, tiles:Array<SquareTile>) 
+	public function new(x:Int, y:Int, offsetX:Int, offsetY:Int, width:Int, height:Int, tiles:Array<SquareTile>, level:Int) 
 	{
 		this.x = x;
 		this.y = y;
@@ -27,8 +28,14 @@ class SquareCluster implements ICluster<SquareTile>
 		this.offsetY = offsetY;
 		this.width = width;
 		this.height = height;
-		this.tiles = tiles;
+		this.level = level;
+		this.tiles = [];
 		this.entranceNodes = [];
+		
+		// Do not assign directly i.e. this.tiles = tiles;
+		// Go through the set function to make sure the tiles are correctly placed in the array
+		for (tile in tiles)
+			setTile(tile.x, tile.y, tile);
 	}
 	
 	public function getTile(x:Int, y:Int):SquareTile
@@ -58,7 +65,8 @@ class SquareCluster implements ICluster<SquareTile>
 	public function getNeighbours(tile:SquareTile):Array<SquareTile>
 	{
 		var result = [];
-		
+		if (tile.x == 3 && tile.y == 6) 
+		trace("36", result);
 		var t = getTile(tile.x, tile.y - 1);
 		var b = getTile(tile.x, tile.y + 1);
 		var l = getTile(tile.x - 1, tile.y);
@@ -85,6 +93,7 @@ class SquareCluster implements ICluster<SquareTile>
 		if (bl != null && b.walkable && l.walkable)
 			result.push(bl);
 		
+		
 		return result;
 	}
 	
@@ -98,20 +107,12 @@ class SquareCluster implements ICluster<SquareTile>
 	
 	public function getRow(y:Int):Array<SquareTile>
 	{
-		var result = [];
-		y += offsetY;
-		for (t in tiles)
-			if (t.y == y) result.push(t);
-		return result;
+		return tiles.filter(function(t) return t.y == y + offsetY);
 	}
 	
 	public function getColumn(x:Int):Array<SquareTile>
 	{
-		var result = [];
-		x += offsetX;
-		for (t in tiles)
-			if (t.x == x) result.push(t);
-		return result;
+		return tiles.filter(function(t) return t.x == x + offsetX);
 	}
 	
 	public function contains(tile:SquareTile):Bool

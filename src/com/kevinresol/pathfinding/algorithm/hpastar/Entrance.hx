@@ -15,4 +15,9 @@ class Entrance<TNode:INode>
 		nodes = new Pair([], []);
 	}
 	
+	public function toString():String
+	{
+		return '[Entrance: ${nodes.a.toString()}, ${nodes.b.toString()}]';
+	}
+	
 }
